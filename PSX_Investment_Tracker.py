@@ -2,7 +2,22 @@ import streamlit as st
 import pandas as pd 
 import matplotlib.pyplot as plt 
 import datetime
-df=pd.read_csv(r"D:\Hammad\Study\Navttc\Psx.csv")
+from bs4 import BeautifulSoup
+import requests
+url ="https://dps.psx.com.pk/screener"
+headers = {'User-Agent': 'Mozilla/5.0'}
+r=requests.get(url)
+Soup=BeautifulSoup(r.text,'html.parser')
+table = Soup.find('table')
+rows = table.find_all('tr')
+data=[]
+headers = [header.text.strip() for header in rows[0].find_all('th')]
+for row in rows[1:]:  # Skip the header
+    cols = row.find_all('td')
+    cols = [ele.text.strip() for ele in cols]#ele is variable for element in <td>
+    if cols:  # If row is not empty
+        data.append(cols)
+df = pd.DataFrame(data, columns=['SYMBOL', 'SECTOR', 'LISTED IN','MARKET CAP.','PRICE','CHANGE(%)','1-YEAR CH.(%)*','PE RATIO(TTM)','DIVIDEND YEILD(%)','FREE FLOAT','30D VOLUMNE AVG.'])
 st.title("Psx Investment Tracker:W.r.t Share Price and Currency Value")
 #st.dataframe(df)
 st.write("Select Share and enter purchase price against it")
